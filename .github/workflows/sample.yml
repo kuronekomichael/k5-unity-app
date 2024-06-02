@@ -1,0 +1,10 @@
+name: Sample
+on:
+  - workflow_dispatch
+
+jobs:
+  echo:
+    runs-on: self-hosted
+    steps:
+      - name: Hello world
+        run: echo hello, world!
