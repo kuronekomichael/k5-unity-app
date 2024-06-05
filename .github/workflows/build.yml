@@ -1,0 +1,122 @@
+name: Build unity app
+
+on:
+  workflow_dispatch:
+    inputs:
+      define_symbols:
+        description: "Scripting Define Symbols"
+        required: false
+        default: "SYMBOL_A;SYMBOL_B;SYMBOL_C;"
+
+# Secrets:
+#  - UNITY_EMAIL: xxxxx@example.com
+#  - UNITY_PASSWORD: xxxxx@example.com's password
+#  - UNITY_LICENSE: cat '/Library/Application Support/Unity/Unity_lic.ulf' | pbcopy
+#  - ANDROID_KEYSTORE_BASE64: cat xxxx.keystore | base64
+#  - KEYSTORE_PASS: aaaaaa
+#  - KEY_ALIAS_NAME: bbbbbb
+#  - KEY_ALIAS_PASS: cccccc
+
+jobs:
+  build-androlid:
+    name: Run the Androlid build
+    runs-on: ubuntu-latest
+    environment: development
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Create LFS file list
+        run: git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
+
+      - name: Restore LFS cache
+        uses: actions/cache@v3
+        id: lfs-cache
+        with:
+          path: .git/lfs
+          key: ${{ runner.os }}-lfs-${{ hashFiles('.lfs-assets-id') }}
+
+      - name: Git LFS Pull
+        run: |
+          git lfs pull
+          git add .
+          git reset --hard
+
+      - name: Set outputs
+        id: vars
+        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+        
+      - name: Use caches
+        uses: actions/cache@v3
+        with:
+          path: Library
+          key: Library-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          restore-keys: |
+            Library-
+
+      # /Applications/Unity/Hub/Editor/${UNITY_CLI_VERSION}/Unity.app/Contents/MacOS/Unity \
+      #   -quit \
+      #   -batchmode -executeMethod K5unity.Editor.CustomBuild.PrepareForGoogle \
+      #   -logFile ${PROJECT_PATH}/1_prepare_for_google.log \
+      #   -projectPath ${PROJECT_PATH} \
+      #   -defineSymbols ${SYMBOLS}
+      # @see https://game.ci/docs/github/builder/
+      - name: Preparation
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        with:
+          # @see https://docs.unity3d.com/ScriptReference/BuildTarget.html
+          targetPlatform: Android
+          unityVersion: 2021.3.36f1
+          buildMethod: K5unity.Editor.CustomBuild.PrepareForGoogle
+          customParameters: -defineSymbols ${{ github.event.inputs.define_symbols }}
+
+      - name: Restore keystore file
+        env:
+          ANDROID_KEYSTORE_BASE64: secrets.ANDROID_KEYSTORE_BASE64
+        run: |
+          if [[ -n "$ANDROID_KEYSTORE_BASE64" ]]; then
+            echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > build.keystore
+          fi
+
+      - name: Test keystore file
+        env:
+          KEYSTORE_PASS: ${{ secrets.KEYSTORE_PASS }}
+          KEY_ALIAS_NAME: ${{ secrets.KEY_ALIAS_NAME }}
+        run: |
+          keytool -exportcert -alias $KEY_ALIAS_NAME --storepass $KEYSTORE_PASS -keystore build.keystore | openssl sha1 -binary | openssl base64
+
+      # /Applications/Unity/Hub/Editor/${UNITY_CLI_VERSION}/Unity.app/Contents/MacOS/Unity \
+      #   -quit \
+      #   -batchmode -executeMethod K5unity.Editor.CustomBuild.BuildForGoogle \
+      #   -logFile ${PROJECT_PATH}/2_build_for_google.log \
+      #   -projectPath ${PROJECT_PATH} \
+      #   -keystorePass ${KEYSTORE_PASS} \
+      #   -keyAliasName ${KEY_ALIAS_NAME} \
+      #   -keyAliasPass ${KEY_ALIAS_PASS} \
+      #   -defineSymbols ${SYMBOLS}
+      - name: Build
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          KEYSTORE_PASS: ${{ secrets.KEYSTORE_PASS }}
+          KEY_ALIAS_NAME: ${{ secrets.KEY_ALIAS_NAME }}
+          KEY_ALIAS_PASS: ${{ secrets.KEY_ALIAS_PASS }}
+        with:
+          # @see https://docs.unity3d.com/ScriptReference/BuildTarget.html
+          targetPlatform: Android
+          unityVersion: 2021.3.36f1
+          buildMethod: K5unity.Editor.CustomBuild.BuildForGoogle
+          customParameters: -defineSymbols ${{ github.event.inputs.define_symbols }} -keystorePass "$KEYSTORE_PASS" -keyAliasName "$KEY_ALIAS_NAME" -keyAliasPass "$KEY_ALIAS_PASS"
+
+      - name: Upload the build result as a zip file
+        uses: actions/upload-artifact@v3
+        with:
+          name: Build-${{ steps.vars.outputs.sha_short }}
+          path: build
+          retention-days: 5
