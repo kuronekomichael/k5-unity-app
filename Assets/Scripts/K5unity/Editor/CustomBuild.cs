@@ -12,11 +12,6 @@ namespace K5unity.Editor
         // Common
         private const string SymbolArg = "-defineSymbols";
 
-        // Android(Google)
-        private const string KeystorePassArg = "-keystorePass"; 
-        private const string KeyAliasNameArg = "-keyAliasName";
-        private const string KeyAliasPassArg = "-keyAliasPass";
-
         // iOS(Apple)
         private const string ProvisioningProfileIdArg = "-provisioningProfileId";
         private const string AppleDeveloperTeamIdArg = "-appleDeveloperTeamId";
@@ -57,14 +52,17 @@ namespace K5unity.Editor
             {
                 case BuildResult.Failed:
                     Debug.LogError(resultLog);
+                    EditorApplication.Exit(1);
                     break;
                 case BuildResult.Succeeded:
                     Debug.Log(resultLog);
+                    EditorApplication.Exit(0);
                     break;
                 case BuildResult.Unknown:
                 case BuildResult.Cancelled:
                 default:
                     Debug.LogWarning(resultLog);
+                    EditorApplication.Exit(2);
                     break;
             }
         }
@@ -79,23 +77,6 @@ namespace K5unity.Editor
             EditorUserBuildSettings.androidBuildSystem = AndroidBuildSystem.Gradle;
             EditorUserBuildSettings.buildAppBundle = true;
             PlayerSettings.applicationIdentifier = CustomBuildConfig.BundleIdentifierGoogle;
-
-            var keystorePass = GetArgByName(KeystorePassArg); 
-            var keyAliasName = GetArgByName(KeyAliasNameArg);
-            var keyAliasPass = GetArgByName(KeyAliasPassArg);
-            if (string.IsNullOrEmpty(keystorePass) || string.IsNullOrEmpty(keyAliasName) ||
-                string.IsNullOrEmpty(keyAliasPass))
-            {
-                PlayerSettings.Android.useCustomKeystore = false;
-            }
-            else
-            {
-                PlayerSettings.Android.useCustomKeystore = true;
-                PlayerSettings.Android.keystoreName = CustomBuildConfig.AndroidKeystoreName;
-                PlayerSettings.Android.keystorePass = keystorePass;
-                PlayerSettings.Android.keyaliasName = keyAliasName;
-                PlayerSettings.Android.keyaliasPass = keyAliasPass;
-            }
 
             PlayerSettings.SetScriptingBackend(BuildTargetGroup.Android, ScriptingImplementation.IL2CPP);
             PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;

@@ -100,24 +100,35 @@ jobs:
       #   -defineSymbols ${SYMBOLS}
       - name: Build
         uses: game-ci/unity-builder@v4
+        id: buildStep
         env:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-          KEYSTORE_PASS: ${{ secrets.KEYSTORE_PASS }}
-          KEY_ALIAS_NAME: ${{ secrets.KEY_ALIAS_NAME }}
-          KEY_ALIAS_PASS: ${{ secrets.KEY_ALIAS_PASS }}
         with:
           # @see https://docs.unity3d.com/ScriptReference/BuildTarget.html
           targetPlatform: Android
           unityVersion: 2021.3.36f1
           allowDirtyBuild: true
           buildMethod: K5unity.Editor.CustomBuild.BuildForGoogle
-          customParameters: -defineSymbols ${{ github.event.inputs.define_symbols }} -keystorePass "$KEYSTORE_PASS" -keyAliasName "$KEY_ALIAS_NAME" -keyAliasPass "$KEY_ALIAS_PASS"
+          androidKeystoreName: build.keystore
+          androidKeystoreBase64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          androidKeystorePass: ${{ secrets.KEYSTORE_PASS }}
+          androidKeyaliasName: ${{ secrets.KEY_ALIAS_NAME }}
+          androidKeyaliasPass: ${{ secrets.KEY_ALIAS_PASS }}
+          customParameters: "-defineSymbols ${{ github.event.inputs.define_symbols }}"
 
-      - name: Upload the build result as a zip file
+      - name: list
+        run: |
+            echo "$ ls"
+            ls -al
+            echo 'Project Version: ${{ steps.buildStep.outputs.buildVersion }}'
+            echo 'Android Version Code: ${{ steps.buildStep.outputs.androidVersionCode }}'
+            echo 'Build Step Exit Code: ${{ steps.buildStep.outputs.engineExitCode }}'
+
+      - name: Upload the build result (test 1)
         uses: actions/upload-artifact@v4
         with:
-          name: Build-${{ steps.vars.outputs.sha_short }}
-          path: build
+          name: artifact1-${{ steps.vars.outputs.sha_short }}
+          path: "binary.aab"
           retention-days: 5

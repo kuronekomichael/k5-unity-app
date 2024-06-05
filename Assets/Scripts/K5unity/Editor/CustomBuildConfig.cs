@@ -11,6 +11,5 @@ namespace K5unity.Editor
         public const string ProductName = "K5";
         public const string BundleIdentifierGoogle = "io.tass.casual.vd.k5unity";
         public const string BundleIdentifierApple = "io.tass.casual.vd.k5unity";
-        public const string AndroidKeystoreName = "build.keystore";
     }
 }
