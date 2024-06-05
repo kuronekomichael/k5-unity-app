@@ -111,6 +111,7 @@ jobs:
           # @see https://docs.unity3d.com/ScriptReference/BuildTarget.html
           targetPlatform: Android
           unityVersion: 2021.3.36f1
+          allowDirtyBuild: true
           buildMethod: K5unity.Editor.CustomBuild.BuildForGoogle
           customParameters: -defineSymbols ${{ github.event.inputs.define_symbols }} -keystorePass "$KEYSTORE_PASS" -keyAliasName "$KEY_ALIAS_NAME" -keyAliasPass "$KEY_ALIAS_PASS"
 
