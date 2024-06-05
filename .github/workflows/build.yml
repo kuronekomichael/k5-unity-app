@@ -30,7 +30,7 @@ jobs:
         run: git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
 
       - name: Restore LFS cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         id: lfs-cache
         with:
           path: .git/lfs
@@ -47,7 +47,7 @@ jobs:
         run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
         
       - name: Use caches
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: Library
           key: Library-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
@@ -116,7 +116,7 @@ jobs:
           customParameters: -defineSymbols ${{ github.event.inputs.define_symbols }} -keystorePass "$KEYSTORE_PASS" -keyAliasName "$KEY_ALIAS_NAME" -keyAliasPass "$KEY_ALIAS_PASS"
 
       - name: Upload the build result as a zip file
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Build-${{ steps.vars.outputs.sha_short }}
           path: build
