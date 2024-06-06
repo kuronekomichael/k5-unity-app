@@ -15,10 +15,6 @@ SYMBOLS="SYM_A;SYM_B;SYM_C"
 ### Android
 
 ```sh
-KEYSTORE_PASS="sample"
-KEY_ALIAS_NAME="debug"
-KEY_ALIAS_PASS="sample"
-
 /Applications/Unity/Hub/Editor/${UNITY_CLI_VERSION}/Unity.app/Contents/MacOS/Unity \
   -quit \
   -batchmode -executeMethod K5unity.Editor.CustomBuild.PrepareForGoogle \
@@ -31,9 +27,6 @@ KEY_ALIAS_PASS="sample"
   -batchmode -executeMethod K5unity.Editor.CustomBuild.BuildForGoogle \
   -logFile ${PROJECT_PATH}/2_build_for_google.log \
   -projectPath ${PROJECT_PATH} \
-  -keystorePass ${KEYSTORE_PASS} \
-  -keyAliasName ${KEY_ALIAS_NAME} \
-  -keyAliasPass ${KEY_ALIAS_PASS} \
   -defineSymbols ${SYMBOLS}
 ```
 
