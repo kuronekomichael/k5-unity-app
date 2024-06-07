@@ -12,13 +12,17 @@ on:
 #  - UNITY_EMAIL: xxxxx@example.com
 #  - UNITY_PASSWORD: xxxxx@example.com's password
 #  - UNITY_LICENSE: cat '/Library/Application Support/Unity/Unity_lic.ulf' | pbcopy
-#  - ANDROID_KEYSTORE_BASE64: cat xxxx.keystore | base64
-#  - KEYSTORE_PASS: aaaaaa
-#  - KEY_ALIAS_NAME: bbbbbb
-#  - KEY_ALIAS_PASS: cccccc
+#  for Android
+#    - ANDROID_KEYSTORE_BASE64: cat xxxx.keystore | base64
+#    - KEYSTORE_PASS: aaaaaa
+#    - KEY_ALIAS_NAME: bbbbbb
+#    - KEY_ALIAS_PASS: cccccc
+#  for iOS
+#    - APPLE_DEVELOPER_TEAM_ID: ddddddd
+#    - VPROVISIONING_PROFILE_ID: eee-ee-eee-eeee-eeee
 
 jobs:
-  build-androlid:
+  build-android:
     name: Run the Androlid build
     runs-on: ubuntu-latest
     environment: development
@@ -45,7 +49,7 @@ jobs:
       - name: Set outputs
         id: vars
         run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
-        
+
       - name: Use caches
         uses: actions/cache@v4
         with:
@@ -131,4 +135,100 @@ jobs:
         with:
           name: artifact1-${{ steps.vars.outputs.sha_short }}
           path: "binary.aab"
+          retention-days: 5
+
+  build-ios:
+    name: Run the iOS build
+    runs-on: ubuntu-latest
+    environment: development
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Create LFS file list
+        run: git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
+
+      - name: Restore LFS cache
+        uses: actions/cache@v4
+        id: lfs-cache
+        with:
+          path: .git/lfs
+          key: ${{ runner.os }}-lfs-${{ hashFiles('.lfs-assets-id') }}
+
+      - name: Git LFS Pull
+        run: |
+          git lfs pull
+          git add .
+          git reset --hard
+
+      - name: Set outputs
+        id: vars
+        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Use caches
+        uses: actions/cache@v4
+        with:
+          path: Library
+          key: Library-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          restore-keys: |
+            Library-
+
+      # /Applications/Unity/Hub/Editor/${UNITY_CLI_VERSION}/Unity.app/Contents/MacOS/Unity \
+      #   -quit \
+      #   -batchmode -executeMethod K5unity.Editor.CustomBuild.PrepareForApple \
+      #   -logFile ${PROJECT_PATH}/1_prepare_for_apple.log \
+      #   -projectPath ${PROJECT_PATH} \
+      #   -defineSymbols ${SYMBOLS}
+      # @see https://game.ci/docs/github/builder/
+      - name: Preparation
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        with:
+          # @see https://docs.unity3d.com/ScriptReference/BuildTarget.html
+          targetPlatform: iOS
+          unityVersion: 2021.3.36f1
+          buildMethod: K5unity.Editor.CustomBuild.PrepareForApple
+          customParameters: -defineSymbols ${{ github.event.inputs.define_symbols }}
+
+      # /Applications/Unity/Hub/Editor/${UNITY_CLI_VERSION}/Unity.app/Contents/MacOS/Unity \
+      #   -quit \
+      #   -batchmode -executeMethod K5unity.Editor.CustomBuild.BuildForApple \
+      #   -logFile ${PROJECT_PATH}/2_build_for_apple.log \
+      #   -projectPath ${PROJECT_PATH} \
+      #   -keystorePass ${KEYSTORE_PASS} \
+      #   -keyAliasName ${KEY_ALIAS_NAME} \
+      #   -keyAliasPass ${KEY_ALIAS_PASS} \
+      #   -defineSymbols ${SYMBOLS}
+      - name: Build
+        uses: game-ci/unity-builder@v4
+        id: buildStep
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        with:
+          # @see https://docs.unity3d.com/ScriptReference/BuildTarget.html
+          targetPlatform: iOS
+          unityVersion: 2021.3.36f1
+          allowDirtyBuild: true
+          buildMethod: K5unity.Editor.CustomBuild.BuildForApple
+          customParameters: "-appleDeveloperTeamId ${{ secrets.APPLE_DEVELOPER_TEAM_ID }} --provisioningProfileId ${{ secrets.PROVISIONING_PROFILE_ID }} -defineSymbols ${{ github.event.inputs.define_symbols }}"
+
+      - name: list
+        run: |
+            echo "$ ls"
+            ls -al
+            cat ProjectSettings/ProjectSettings.asset
+            echo 'Project Version: ${{ steps.buildStep.outputs.buildVersion }}'
+            echo 'Android Version Code: ${{ steps.buildStep.outputs.androidVersionCode }}'
+            echo 'Build Step Exit Code: ${{ steps.buildStep.outputs.engineExitCode }}'
+
+      - name: Upload the build result (test 1)
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifact1-${{ steps.vars.outputs.sha_short }}
+          path: "XcodeProject"
           retention-days: 5
