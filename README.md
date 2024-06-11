@@ -15,11 +15,20 @@ SYMBOLS="SYM_A;SYM_B;SYM_C"
 ### Android
 
 ```sh
+KEYSTORE_FILEPATH="/path/to/dev.keystore"
+KEYSTORE_PASSWORD="xxxxxxx"
+KEYALIAS_NAME="yyyyyy"
+KEYALIAS_PASSWORD="zzzzzzz"
+
 /Applications/Unity/Hub/Editor/${UNITY_CLI_VERSION}/Unity.app/Contents/MacOS/Unity \
   -quit \
   -batchmode -executeMethod K5unity.Editor.CustomBuild.PrepareForGoogle \
   -logFile ${PROJECT_PATH}/1_prepare_for_google.log \
   -projectPath ${PROJECT_PATH} \
+  -keystoreName $KEYSTORE_FILEPATH \
+  -keystorePass $KEYSTORE_PASSWORD \
+  -keyAliasName $KEYALIAS_NAME \
+  -keyAliasPass $KEYALIAS_PASSWORD \
   -defineSymbols ${SYMBOLS}
 
 /Applications/Unity/Hub/Editor/${UNITY_CLI_VERSION}/Unity.app/Contents/MacOS/Unity \
@@ -27,7 +36,15 @@ SYMBOLS="SYM_A;SYM_B;SYM_C"
   -batchmode -executeMethod K5unity.Editor.CustomBuild.BuildForGoogle \
   -logFile ${PROJECT_PATH}/2_build_for_google.log \
   -projectPath ${PROJECT_PATH} \
+  -keystoreName $KEYSTORE_FILEPATH \
+  -keystorePass $KEYSTOER_PASSWORD \
+  -keyAliasName $KEYALIAS_NAME \
+  -keyAliasPass $KEYALIAS_PASSWORD \
   -defineSymbols ${SYMBOLS}
+
+cat ${PROJECT_PATH}/2_build_for_google.log | grep "Build result"
+cat ${PROJECT_PATH}/2_build_for_google.log | grep -v '> Task :' | grep -v '> Configure project :' | grep -E "^\s*> "
+
 ```
 
 ### iOS
