@@ -1,12 +1,24 @@
-name: Build unity app for production
+name: Build unity app
 
 on:
   workflow_dispatch:
     inputs:
+      environment:
+        type: environment
       define_symbols:
         description: "Scripting Define Symbols"
         required: false
-        default: "SYMBOL_A;SYMBOL_B;SYMBOL_C;PRODUCTION"
+        default: "SYMBOL_A;SYMBOL_B;SYMBOL_C;"
+      enable_ios_build:
+        type: boolean
+        description: Build for iOS
+        required: true
+        default: true
+      enable_android_build:
+        type: boolean
+        description: Build for Android
+        required: true
+        default: true
 
 # Secrets:
 #  - UNITY_EMAIL: xxxxx@example.com
@@ -25,7 +37,8 @@ jobs:
   build-android:
     name: Run the Androlid build
     runs-on: ubuntu-latest
-    environment: production
+    environment: ${{ github.event.inputs.environment }}
+    if: ${{ github.event.inputs.enable_android_build }}
     steps:
       - name: Check out
         uses: actions/checkout@v4
@@ -140,7 +153,8 @@ jobs:
   build-ios:
     name: Run the iOS build
     runs-on: ubuntu-latest
-    environment: development
+    environment: ${{ github.event.inputs.environment }}
+    if: ${{ github.event.inputs.enable_ios_build }}
     steps:
       - name: Check out
         uses: actions/checkout@v4
