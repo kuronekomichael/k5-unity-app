@@ -37,7 +37,7 @@ KEYALIAS_PASSWORD="zzzzzzz"
   -logFile ${PROJECT_PATH}/2_build_for_google.log \
   -projectPath ${PROJECT_PATH} \
   -keystoreName $KEYSTORE_FILEPATH \
-  -keystorePass $KEYSTOER_PASSWORD \
+  -keystorePass $KEYSTORE_PASSWORD \
   -keyAliasName $KEYALIAS_NAME \
   -keyAliasPass $KEYALIAS_PASSWORD \
   -defineSymbols ${SYMBOLS}
