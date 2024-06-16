@@ -229,7 +229,7 @@ jobs:
           unityVersion: 2021.3.36f1
           allowDirtyBuild: true
           buildMethod: K5unity.Editor.CustomBuild.BuildForApple
-          customParameters: "-appleDeveloperTeamId ${{ secrets.APPLE_DEVELOPER_TEAM_ID }} --provisioningProfileId ${{ secrets.PROVISIONING_PROFILE_ID }} -defineSymbols ${{ github.event.inputs.define_symbols }}"
+          customParameters: "-appleDeveloperTeamId ${{ secrets.APPLE_DEVELOPER_TEAM_ID }} -provisioningProfileId ${{ secrets.PROVISIONING_PROFILE_ID }} -defineSymbols ${{ github.event.inputs.define_symbols }}"
 
       - name: list
         run: |
