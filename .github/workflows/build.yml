@@ -239,6 +239,9 @@ jobs:
             echo 'Project Version: ${{ steps.buildStep.outputs.buildVersion }}'
             echo 'Android Version Code: ${{ steps.buildStep.outputs.androidVersionCode }}'
             echo 'Build Step Exit Code: ${{ steps.buildStep.outputs.engineExitCode }}'
+            cat Unity-iPhone.xcodeproj/project.pbxproj | grep 'PROVISIONING_PROFILE_APP'
+            cat Unity-iPhone.xcodeproj/project.pbxproj | grep 'DEVELOPMENT_TEAM'
+            cat Unity-iPhone.xcodeproj/project.pbxproj | grep -E 'PROVISIONING_PROFILE_APP|DEVELOPMENT_TEAM'
 
       - name: Upload the build result (test 1)
         uses: actions/upload-artifact@v4

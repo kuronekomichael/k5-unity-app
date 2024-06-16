@@ -100,8 +100,6 @@ namespace K5unity.Editor
                 PlayerSettings.Android.keystorePass = keystorePass;
                 PlayerSettings.Android.keyaliasName = keyAliasName;
                 PlayerSettings.Android.keyaliasPass = keyAliasPass;
-
-                Debug.Log($">>> keystoreName = {PlayerSettings.Android.keystoreName}");
             }
 
             PlayerSettings.SetScriptingBackend(BuildTargetGroup.Android, ScriptingImplementation.IL2CPP);
@@ -141,12 +139,14 @@ namespace K5unity.Editor
             if (!string.IsNullOrEmpty(provisioningProfileId))
             {
                 PlayerSettings.iOS.iOSManualProvisioningProfileID = provisioningProfileId;
+                Debug.Log($">>> iOS Manual Provisioning Profile ID = {PlayerSettings.iOS.iOSManualProvisioningProfileID}");
             }
 
             var appleDeveloperTeamId = GetArgByName(AppleDeveloperTeamIdArg);
             if (!string.IsNullOrEmpty(appleDeveloperTeamId))
             {
                 PlayerSettings.iOS.appleDeveloperTeamID = appleDeveloperTeamId;
+                Debug.Log($">>> Apple Developer Team ID = {PlayerSettings.iOS.appleDeveloperTeamID}");
             }
 
             PlayerSettings.applicationIdentifier = CustomBuildConfig.BundleIdentifierApple;
