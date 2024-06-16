@@ -4,8 +4,8 @@ namespace K5unity.Editor
 {
     public static class CustomBuildConfig
     {
-        public const string BundleVersion = "0.0.1";
-        public const int BundleVersionCode = 1;
+        public const string BundleVersion = "0.0.2";
+        public const int BundleVersionCode = 2;
         public static string BundleBuildNumber => BundleVersionCode.ToString();
 
         public const string ProductName = "K5";
