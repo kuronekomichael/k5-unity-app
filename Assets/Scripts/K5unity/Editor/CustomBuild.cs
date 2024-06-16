@@ -88,8 +88,8 @@ namespace K5unity.Editor
             var keystorePass = GetArgByName(KeystorePassArg);
             var keyAliasName = GetArgByName(KeyAliasNameArg);
             var keyAliasPass = GetArgByName(KeyAliasPassArg);
-            if (string.IsNullOrEmpty(keystorePass) || string.IsNullOrEmpty(keyAliasName) ||
-                string.IsNullOrEmpty(keyAliasPass))
+            if (string.IsNullOrEmpty(keystoreName) || string.IsNullOrEmpty(keystorePass) ||
+                string.IsNullOrEmpty(keyAliasName) || string.IsNullOrEmpty(keyAliasPass))
             {
                 PlayerSettings.Android.useCustomKeystore = false;
             }
@@ -100,6 +100,8 @@ namespace K5unity.Editor
                 PlayerSettings.Android.keystorePass = keystorePass;
                 PlayerSettings.Android.keyaliasName = keyAliasName;
                 PlayerSettings.Android.keyaliasPass = keyAliasPass;
+
+                Debug.Log($">>> keystoreName = {PlayerSettings.Android.keystoreName}");
             }
 
             PlayerSettings.SetScriptingBackend(BuildTargetGroup.Android, ScriptingImplementation.IL2CPP);
