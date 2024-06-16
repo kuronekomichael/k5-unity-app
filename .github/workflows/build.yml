@@ -38,7 +38,7 @@ jobs:
     name: Run the Androlid build
     runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.environment }}
-    if: ${{ github.event.inputs.enable_android_build }}
+    if: ${{ github.event.inputs.enable_android_build == 'true' }}
     steps:
       - name: Check out
         uses: actions/checkout@v4
@@ -154,7 +154,7 @@ jobs:
     name: Run the iOS build
     runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.environment }}
-    if: ${{ github.event.inputs.enable_ios_build }}
+    if: ${{ github.event.inputs.enable_ios_build == 'true' }}
     steps:
       - name: Check out
         uses: actions/checkout@v4
