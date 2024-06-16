@@ -133,7 +133,7 @@ jobs:
           androidKeystorePass: ${{ secrets.KEYSTORE_PASS }}
           androidKeyaliasName: ${{ secrets.KEY_ALIAS_NAME }}
           androidKeyaliasPass: ${{ secrets.KEY_ALIAS_PASS }}
-          customParameters: "-defineSymbols ${{ github.event.inputs.define_symbols }}"
+          customParameters: "-defineSymbols ${{ github.event.inputs.define_symbols }} -keystoreName build.keystore -keystorePass ${{ secrets.KEYSTORE_PASS }} -keyAliasName ${{ secrets.KEY_ALIAS_NAME }} -keyAliasPass ${{ secrets.KEY_ALIAS_PASS }}"
 
       - name: list
         run: |
