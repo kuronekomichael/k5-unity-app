@@ -5,6 +5,7 @@ on:
     inputs:
       environment:
         type: environment
+        required: true
       define_symbols:
         description: "Scripting Define Symbols"
         required: false
@@ -12,16 +13,17 @@ on:
       enable_ios_build:
         type: boolean
         description: Build for iOS
-        required: true
+        required: false
         default: true
       enable_android_build:
         type: boolean
         description: Build for Android
-        required: true
+        required: false
         default: true
       enable_auto_assign_version_code:
         type: boolean
         description: Use github.run_number as version code
+        required: false
         default: true
 
 # --------
@@ -125,7 +127,7 @@ jobs:
           androidKeyaliasName: ${{ secrets.ANDROID_KEY_ALIAS_NAME }}
           androidKeyaliasPass: ${{ secrets.ANDROID_KEY_ALIAS_PASS }}
           androidKeystoreBase64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-          customParameters: -defineSymbols ${{ github.event.inputs.define_symbols }} -keystoreName build.keystore -keystorePass ${{ secrets.ANDROID_KEYSTORE_PASS }} -keyAliasName ${{ secrets.ANDROID_KEY_ALIAS_NAME }} -keyAliasPass ${{ secrets.ANDROID_KEY_ALIAS_PASS }}
+          customParameters: -defineSymbols ${{ github.event.inputs.define_symbols }} -keystoreName build.keystore -keystorePass ${{ secrets.ANDROID_KEYSTORE_PASS }} -keyAliasName ${{ secrets.ANDROID_KEY_ALIAS_NAME }} -keyAliasPass ${{ secrets.ANDROID_KEY_ALIAS_PASS }} ${{ github.event.inputs.enable_auto_assign_version_code == 'true' && format('-versionCode {0}', github.run_number) || '' }}
 
       - name: Show results
         run: |
@@ -201,7 +203,7 @@ jobs:
           unityVersion: 2021.3.36f1
           allowDirtyBuild: true
           buildMethod: K5unity.Editor.CustomBuild.BuildForApple
-          customParameters: "-appleDeveloperTeamId ${{ secrets.APPLE_DEVELOPER_TEAM_ID }} -provisioningProfileId ${{ secrets.APPLE_PROVISIONING_PROFILE_ID }} -defineSymbols ${{ github.event.inputs.define_symbols }}"
+          customParameters: -appleDeveloperTeamId ${{ secrets.APPLE_DEVELOPER_TEAM_ID }} -provisioningProfileId ${{ secrets.APPLE_PROVISIONING_PROFILE_ID }} -defineSymbols ${{ github.event.inputs.define_symbols }} ${{ github.event.inputs.enable_auto_assign_version_code == 'true' && format('-versionCode {0}', github.run_number) || '' }}
 
       - name: Show results
         run: |

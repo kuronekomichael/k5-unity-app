@@ -11,6 +11,7 @@ namespace K5unity.Editor
     {
         // Common
         private const string SymbolArg = "-defineSymbols";
+        private const string VersionCodeArg = "-versionCode";
 
         // Android(Google)
         private const string KeystoreNameArg = "-keystoreName";
@@ -104,9 +105,11 @@ namespace K5unity.Editor
 
             PlayerSettings.SetScriptingBackend(BuildTargetGroup.Android, ScriptingImplementation.IL2CPP);
             PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
-            
+
+            var versionCode = GetArgByName(VersionCodeArg);
+            PlayerSettings.Android.bundleVersionCode = string.IsNullOrEmpty(versionCode) ? CustomBuildConfig.BundleVersionCode: int.Parse(versionCode);
+
             PlayerSettings.Android.useAPKExpansionFiles = true;
-            PlayerSettings.Android.bundleVersionCode = CustomBuildConfig.BundleVersionCode;
             PlayerSettings.Android.minifyDebug = true;
             PlayerSettings.Android.minifyRelease = true;
             PlayerSettings.Android.minifyWithR8 = true;
@@ -131,7 +134,9 @@ namespace K5unity.Editor
 
             EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.iOS, BuildTarget.iOS);
             PlayerSettings.iOS.sdkVersion = iOSSdkVersion.DeviceSDK;
-            PlayerSettings.iOS.buildNumber = CustomBuildConfig.BundleBuildNumber;
+
+            var versionCode = GetArgByName(VersionCodeArg);
+            PlayerSettings.iOS.buildNumber = string.IsNullOrEmpty(versionCode) ? CustomBuildConfig.BundleBuildNumber : versionCode;
 
             PlayerSettings.iOS.appleEnableAutomaticSigning = false;
 
