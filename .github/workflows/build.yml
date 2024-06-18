@@ -125,7 +125,7 @@ jobs:
           androidKeyaliasName: ${{ secrets.ANDROID_KEY_ALIAS_NAME }}
           androidKeyaliasPass: ${{ secrets.ANDROID_KEY_ALIAS_PASS }}
           androidKeystoreBase64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-          customParameters: -defineSymbols ${{ github.event.inputs.define_symbols }} -keystoreName build.keystore -keystorePass ${{ secrets.ANDROID_KEYSTORE_PASS }} -keyAliasName ${{ secrets.ANDROID_KEY_ALIAS_NAME }} -keyAliasPass ${{ secrets.ANDROID_KEY_ALIAS_PASS }}"
+          customParameters: -defineSymbols ${{ github.event.inputs.define_symbols }} -keystoreName build.keystore -keystorePass ${{ secrets.ANDROID_KEYSTORE_PASS }} -keyAliasName ${{ secrets.ANDROID_KEY_ALIAS_NAME }} -keyAliasPass ${{ secrets.ANDROID_KEY_ALIAS_PASS }}
 
       - name: Show results
         run: |
