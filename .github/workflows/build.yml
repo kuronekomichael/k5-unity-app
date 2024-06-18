@@ -19,6 +19,10 @@ on:
         description: Build for Android
         required: true
         default: true
+      enable_auto_assign_version_code:
+        type: boolean
+        description: Use github.run_number as version code
+        default: true
 
 # --------
 # Secrets
@@ -77,12 +81,6 @@ jobs:
           restore-keys: |
             Library-
 
-      # /Applications/Unity/Hub/Editor/${UNITY_CLI_VERSION}/Unity.app/Contents/MacOS/Unity \
-      #   -quit \
-      #   -batchmode -executeMethod K5unity.Editor.CustomBuild.PrepareForGoogle \
-      #   -logFile ${PROJECT_PATH}/1_prepare_for_google.log \
-      #   -projectPath ${PROJECT_PATH} \
-      #   -defineSymbols ${SYMBOLS}
       # @see https://game.ci/docs/github/builder/
       - name: Preparation
         uses: game-ci/unity-builder@v4
@@ -91,7 +89,6 @@ jobs:
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
-          # @see https://docs.unity3d.com/ScriptReference/BuildTarget.html
           targetPlatform: Android
           unityVersion: 2021.3.36f1
           buildMethod: K5unity.Editor.CustomBuild.PrepareForGoogle
@@ -110,15 +107,7 @@ jobs:
         run: |
           keytool -exportcert -alias $KEY_ALIAS_NAME --storepass $KEYSTORE_PASS -keystore build.keystore | openssl sha1 -binary | openssl base64
 
-      # /Applications/Unity/Hub/Editor/${UNITY_CLI_VERSION}/Unity.app/Contents/MacOS/Unity \
-      #   -quit \
-      #   -batchmode -executeMethod K5unity.Editor.CustomBuild.BuildForGoogle \
-      #   -logFile ${PROJECT_PATH}/2_build_for_google.log \
-      #   -projectPath ${PROJECT_PATH} \
-      #   -keystorePass ${KEYSTORE_PASS} \
-      #   -keyAliasName ${KEY_ALIAS_NAME} \
-      #   -keyAliasPass ${KEY_ALIAS_PASS} \
-      #   -defineSymbols ${SYMBOLS}
+      # @see https://game.ci/docs/github/builder/
       - name: Build
         uses: game-ci/unity-builder@v4
         id: buildStep
@@ -127,7 +116,6 @@ jobs:
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
-          # @see https://docs.unity3d.com/ScriptReference/BuildTarget.html
           targetPlatform: Android
           unityVersion: 2021.3.36f1
           allowDirtyBuild: true
@@ -137,21 +125,19 @@ jobs:
           androidKeystorePass: ${{ secrets.ANDROID_KEYSTORE_PASS }}
           androidKeyaliasName: ${{ secrets.ANDROID_KEY_ALIAS_NAME }}
           androidKeyaliasPass: ${{ secrets.ANDROID_KEY_ALIAS_PASS }}
-          customParameters: |
-            -defineSymbols ${{ github.event.inputs.define_symbols }} \
-            -keystoreName build.keystore \
-            -keystorePass ${{ secrets.ANDROID_KEYSTORE_PASS }} \
-            -keyAliasName ${{ secrets.ANDROID_KEY_ALIAS_NAME }} \
+          customParameters: |-
+            -defineSymbols ${{ github.event.inputs.define_symbols }}
+            -keystoreName build.keystore
+            -keystorePass ${{ secrets.ANDROID_KEYSTORE_PASS }}
+            -keyAliasName ${{ secrets.ANDROID_KEY_ALIAS_NAME }}
             -keyAliasPass ${{ secrets.ANDROID_KEY_ALIAS_PASS }}"
 
-      - name: list
+      - name: Show results
         run: |
-            echo "$ ls"
-            ls -al
             echo 'Project Version: ${{ steps.buildStep.outputs.buildVersion }}'
             echo 'Android Version Code: ${{ steps.buildStep.outputs.androidVersionCode }}'
             echo 'Build Step Exit Code: ${{ steps.buildStep.outputs.engineExitCode }}'
-
+      
       - name: Upload Android binary
         uses: actions/upload-artifact@v4
         with:
@@ -192,12 +178,6 @@ jobs:
           restore-keys: |
             Library-
 
-      # /Applications/Unity/Hub/Editor/${UNITY_CLI_VERSION}/Unity.app/Contents/MacOS/Unity \
-      #   -quit \
-      #   -batchmode -executeMethod K5unity.Editor.CustomBuild.PrepareForApple \
-      #   -logFile ${PROJECT_PATH}/1_prepare_for_apple.log \
-      #   -projectPath ${PROJECT_PATH} \
-      #   -defineSymbols ${SYMBOLS}
       # @see https://game.ci/docs/github/builder/
       - name: Preparation
         uses: game-ci/unity-builder@v4
@@ -212,15 +192,7 @@ jobs:
           buildMethod: K5unity.Editor.CustomBuild.PrepareForApple
           customParameters: -defineSymbols ${{ github.event.inputs.define_symbols }}
 
-      # /Applications/Unity/Hub/Editor/${UNITY_CLI_VERSION}/Unity.app/Contents/MacOS/Unity \
-      #   -quit \
-      #   -batchmode -executeMethod K5unity.Editor.CustomBuild.BuildForApple \
-      #   -logFile ${PROJECT_PATH}/2_build_for_apple.log \
-      #   -projectPath ${PROJECT_PATH} \
-      #   -keystorePass ${KEYSTORE_PASS} \
-      #   -keyAliasName ${KEY_ALIAS_NAME} \
-      #   -keyAliasPass ${KEY_ALIAS_PASS} \
-      #   -defineSymbols ${SYMBOLS}
+      # @see https://game.ci/docs/github/builder/
       - name: Build
         uses: game-ci/unity-builder@v4
         id: buildStep
@@ -236,17 +208,11 @@ jobs:
           buildMethod: K5unity.Editor.CustomBuild.BuildForApple
           customParameters: "-appleDeveloperTeamId ${{ secrets.APPLE_DEVELOPER_TEAM_ID }} -provisioningProfileId ${{ secrets.APPLE_PROVISIONING_PROFILE_ID }} -defineSymbols ${{ github.event.inputs.define_symbols }}"
 
-      - name: list
+      - name: Show results
         run: |
-            echo "$ ls"
-            ls -al
-            # cat ProjectSettings/ProjectSettings.asset
             echo 'Project Version: ${{ steps.buildStep.outputs.buildVersion }}'
             echo 'Android Version Code: ${{ steps.buildStep.outputs.androidVersionCode }}'
             echo 'Build Step Exit Code: ${{ steps.buildStep.outputs.engineExitCode }}'
-            cat XcodeProject/Unity-iPhone.xcodeproj/project.pbxproj | grep 'PROVISIONING_PROFILE_APP'
-            cat XcodeProject/Unity-iPhone.xcodeproj/project.pbxproj | grep 'DEVELOPMENT_TEAM'
-            cat XcodeProject/Unity-iPhone.xcodeproj/project.pbxproj | grep -E 'PROVISIONING_PROFILE_APP|DEVELOPMENT_TEAM'
 
       - name: Upload xcode workspace
         uses: actions/upload-artifact@v4
@@ -306,11 +272,6 @@ jobs:
       - name: Show Xcode Version
         run: xcodebuild -version
 
-      - name: list(1)
-        run: |
-          echo "$ ls"
-          ls -al
-
       - name: Xcode Archive
         env:
           APPLE_CODE_SIGN_IDENTITY: ${{ secrets.APPLE_CODE_SIGN_IDENTITY }}
@@ -331,12 +292,6 @@ jobs:
           -archivePath ./build/App.xcarchive  \
           -exportPath ./build  \
           -exportOptionsPlist ExportOptions.plist
-
-      - name: list(2)
-        run: |
-          echo "$ ls"
-          ls -al
-          ls -al build
 
       - name: Upload iOS binary
         uses: actions/upload-artifact@v4
