@@ -79,3 +79,4 @@ crashlytics-build.properties
 /*.keystore
 /*.mobileprovision
 /binary_mapping.txt
+/ExportOptions*.plist
