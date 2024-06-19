@@ -213,7 +213,11 @@ jobs:
           unityVersion: 2021.3.36f1
           allowDirtyBuild: true
           buildMethod: K5unity.Editor.CustomBuild.BuildForApple
-          customParameters: -appleDeveloperTeamId ${{ secrets.APPLE_DEVELOPER_TEAM_ID }} -provisioningProfileId ${{ secrets.APPLE_PROVISIONING_PROFILE_ID }} -defineSymbols ${{ github.event.inputs.define_symbols }} ${{ github.event.inputs.enable_auto_assign_version_code == 'true' && format('-versionCode {0}', github.run_number) || '' }}
+          customParameters: |
+            -appleDeveloperTeamId ${{ secrets.APPLE_DEVELOPER_TEAM_ID }} 
+            -provisioningProfileId ${{ secrets.APPLE_PROVISIONING_PROFILE_ID }} 
+            -defineSymbols ${{ github.event.inputs.define_symbols }} 
+            ${{ github.event.inputs.enable_auto_assign_version_code == 'true' && format('-versionCode {0}', github.run_number) || '' }}
 
       - name: Show results
         run: |
@@ -284,21 +288,21 @@ jobs:
           APPLE_CODE_SIGN_IDENTITY: ${{ secrets.APPLE_CODE_SIGN_IDENTITY }}
         run: |
           xcodebuild \
-          clean archive \
-          -project Unity-iPhone.xcodeproj \
-          -scheme Unity-iPhone \
-          -destination 'generic/platform=iOS' \
-          -configuration Release \
-          -archivePath ./build/App.xcarchive \
-          CODE_SIGN_IDENTITY="${APPLE_CODE_SIGN_IDENTITY}"
+            clean archive \
+            -project Unity-iPhone.xcodeproj \
+            -scheme Unity-iPhone \
+            -destination 'generic/platform=iOS' \
+            -configuration Release \
+            -archivePath ./build/App.xcarchive \
+            CODE_SIGN_IDENTITY="${APPLE_CODE_SIGN_IDENTITY}"
 
       - name: Xcode Export
         run: |
           xcodebuild \
-          -exportArchive \
-          -archivePath ./build/App.xcarchive  \
-          -exportPath ./build  \
-          -exportOptionsPlist ExportOptions.plist
+            -exportArchive \
+            -archivePath ./build/App.xcarchive  \
+            -exportPath ./build  \
+            -exportOptionsPlist ExportOptions.plist
 
       - name: Upload iOS binary
         uses: actions/upload-artifact@v4
