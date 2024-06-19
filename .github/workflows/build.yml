@@ -107,7 +107,11 @@ jobs:
           KEYSTORE_PASS: ${{ secrets.ANDROID_KEYSTORE_PASS }}
           KEY_ALIAS_NAME: ${{ secrets.ANDROID_KEY_ALIAS_NAME }}
         run: |
-          keytool -exportcert -alias $KEY_ALIAS_NAME --storepass $KEYSTORE_PASS -keystore build.keystore | openssl sha1 -binary | openssl base64
+          keytool -exportcert \
+            -alias $KEY_ALIAS_NAME \
+            --storepass $KEYSTORE_PASS \
+            -keystore build.keystore \
+            | openssl sha1 -binary | openssl base64
 
       # @see https://game.ci/docs/github/builder/
       - name: Build
@@ -127,7 +131,13 @@ jobs:
           androidKeyaliasName: ${{ secrets.ANDROID_KEY_ALIAS_NAME }}
           androidKeyaliasPass: ${{ secrets.ANDROID_KEY_ALIAS_PASS }}
           androidKeystoreBase64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-          customParameters: -defineSymbols ${{ github.event.inputs.define_symbols }} -keystoreName build.keystore -keystorePass ${{ secrets.ANDROID_KEYSTORE_PASS }} -keyAliasName ${{ secrets.ANDROID_KEY_ALIAS_NAME }} -keyAliasPass ${{ secrets.ANDROID_KEY_ALIAS_PASS }} ${{ github.event.inputs.enable_auto_assign_version_code == 'true' && format('-versionCode {0}', github.run_number) || '' }}
+          customParameters: |
+            -defineSymbols ${{ github.event.inputs.define_symbols }} 
+            -keystoreName build.keystore 
+            -keystorePass ${{ secrets.ANDROID_KEYSTORE_PASS }} 
+            -keyAliasName ${{ secrets.ANDROID_KEY_ALIAS_NAME }} 
+            -keyAliasPass ${{ secrets.ANDROID_KEY_ALIAS_PASS }} 
+            ${{ github.event.inputs.enable_auto_assign_version_code == 'true' && format('-versionCode {0}', github.run_number) || '' }}
 
       - name: Show results
         run: |
