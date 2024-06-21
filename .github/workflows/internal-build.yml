@@ -12,15 +12,15 @@ on:
         required: false
         default: "SYMBOL_A;SYMBOL_B;SYMBOL_C;"
       enable_ios_build:
-        type: boolean
+        type: string
         description: Build for iOS
         required: false
-        default: true
+        default: "true"
       enable_android_build:
-        type: boolean
+        type: string
         description: Build for Android
         required: false
-        default: true
+        default: "true"
       enable_auto_assign_version_code:
         type: string
         description: Use github.run_number as version code
