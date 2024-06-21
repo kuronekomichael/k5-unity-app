@@ -1,0 +1,153 @@
+name: _ Build Unity Android app
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        type: string
+        required: true
+      define_symbols:
+        type: string
+        description: Scripting Define Symbols
+        required: false
+        default: "SYMBOL_A;SYMBOL_B;SYMBOL_C;"
+      enable_auto_assign_version_code:
+        type: string
+        description: Use github.run_number as version code
+        required: false
+        default: "true"
+    secrets:
+      UNITY_EMAIL:
+        required: true
+      UNITY_PASSWORD:
+        required: true
+      UNITY_LICENSE:
+        required: true
+      ANDROID_KEYSTORE_BASE64:
+        required: true
+      ANDROID_KEYSTORE_PASS:
+        required: true
+      ANDROID_KEY_ALIAS_NAME:
+        required: true
+      ANDROID_KEY_ALIAS_PASS:
+        required: true
+
+# --------
+# Secrets
+# --------
+#  - UNITY_EMAIL: xxxxx@example.com
+#  - UNITY_PASSWORD: xxxxx@example.com's password
+#  - UNITY_LICENSE: cat '/Library/Application Support/Unity/Unity_lic.ulf' | pbcopy
+#
+#  for Android
+#    - ANDROID_KEYSTORE_BASE64: $(cat xxxx.keystore | base64)
+#    - ANDROID_KEYSTORE_PASS: aaaaaa
+#    - ANDROID_KEY_ALIAS_NAME: bbbbbb
+#    - ANDROID_KEY_ALIAS_PASS: cccccc
+
+jobs:
+  build-android:
+    name: Run Unity Android build
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    steps:
+      - name: Starting job for ${{ inputs.environment }}
+        run: |
+          echo "enable_auto_assign_version_code: ${{ github.event.inputs.enable_auto_assign_version_code }}"
+          echo "define_symbols: ${{ github.event.inputs.define_symbols }}"
+
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Create LFS file list
+        run: git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
+
+      - name: Restore LFS cache
+        uses: actions/cache@v4
+        id: lfs-cache
+        with:
+          path: .git/lfs
+          key: ${{ runner.os }}-lfs-${{ hashFiles('.lfs-assets-id') }}
+
+      - name: Git LFS Pull
+        run: |
+          git lfs pull
+          git add .
+          git reset --hard
+
+      - name: Use caches
+        uses: actions/cache@v4
+        with:
+          path: Library
+          key: Library-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          restore-keys: |
+            Library-
+
+      # @see https://game.ci/docs/github/builder/
+      - name: Preparation
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        with:
+          targetPlatform: Android
+          unityVersion: 2021.3.36f1
+          buildMethod: K5unity.Editor.CustomBuild.PrepareForGoogle
+          customParameters: -defineSymbols ${{ github.event.inputs.define_symbols }}
+
+      - name: Restore keystore file
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > build.keystore
+
+      - name: Test keystore file
+        env:
+          KEYSTORE_PASS: ${{ secrets.ANDROID_KEYSTORE_PASS }}
+          KEY_ALIAS_NAME: ${{ secrets.ANDROID_KEY_ALIAS_NAME }}
+        run: |
+          keytool -exportcert \
+            -alias $KEY_ALIAS_NAME \
+            --storepass $KEYSTORE_PASS \
+            -keystore build.keystore \
+            | openssl sha1 -binary | openssl base64
+
+      # @see https://game.ci/docs/github/builder/
+      - name: Build
+        uses: game-ci/unity-builder@v4
+        id: buildStep
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        with:
+          targetPlatform: Android
+          unityVersion: 2021.3.36f1
+          allowDirtyBuild: true
+          buildMethod: K5unity.Editor.CustomBuild.BuildForGoogle
+          androidKeystoreName: build.keystore
+          androidKeystorePass: ${{ secrets.ANDROID_KEYSTORE_PASS }}
+          androidKeyaliasName: ${{ secrets.ANDROID_KEY_ALIAS_NAME }}
+          androidKeyaliasPass: ${{ secrets.ANDROID_KEY_ALIAS_PASS }}
+          androidKeystoreBase64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          customParameters: |
+            -defineSymbols ${{ github.event.inputs.define_symbols }} 
+            -keystoreName build.keystore 
+            -keystorePass ${{ secrets.ANDROID_KEYSTORE_PASS }} 
+            -keyAliasName ${{ secrets.ANDROID_KEY_ALIAS_NAME }} 
+            -keyAliasPass ${{ secrets.ANDROID_KEY_ALIAS_PASS }} 
+            ${{ github.event.inputs.enable_auto_assign_version_code == 'true' && format('-versionCode {0}', github.run_number) || '' }}
+
+      - name: Show results
+        run: |
+            echo 'Project Version: ${{ steps.buildStep.outputs.buildVersion }}'
+            echo 'Android Version Code: ${{ steps.buildStep.outputs.androidVersionCode }}'
+            echo 'Build Step Exit Code: ${{ steps.buildStep.outputs.engineExitCode }}'
+      
+      - name: Upload Android binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: aab
+          path: "binary.aab"
+          retention-days: 3
