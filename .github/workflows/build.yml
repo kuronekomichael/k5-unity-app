@@ -250,6 +250,9 @@ jobs:
     environment: ${{ github.event.inputs.environment }}
     if: ${{ github.event.inputs.enable_ios_build == 'true' }}
     runs-on: macos-14
+    permissions:
+      contents: read
+      actions: write
     env:
       DEVELOPER_DIR: /Applications/Xcode_15.4.app
     steps:
@@ -325,7 +328,7 @@ jobs:
 
       - name: Delete Xcode project artifact
         env:
-          GITHUB_TOKEN: ${{ secrets.DELETE_ARTIFACT_GITHUB_PAT }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RUN_ID: ${{ github.run_id }}
           ARTIFACT_NAME: xcworkspace
         run: |
