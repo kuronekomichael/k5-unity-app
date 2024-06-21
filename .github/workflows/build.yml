@@ -51,11 +51,16 @@ on:
 
 jobs:
   build-android:
-    name: Run Unity Androlid build
+    name: Run Unity Android build
     runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.environment }}
     if: ${{ github.event.inputs.enable_android_build == 'true' }}
     steps:
+      - name: Starting job for ${{ github.event.inputs.environment }}
+        run: |
+          echo "enable_auto_assign_version_code: ${{ github.event.inputs.enable_auto_assign_version_code }}"
+          echo "define_symbols: ${{ github.event.inputs.define_symbols }}"
+
       - name: Check out
         uses: actions/checkout@v4
 
@@ -150,7 +155,7 @@ jobs:
         with:
           name: aab
           path: "binary.aab"
-          retention-days: 5
+          retention-days: 3
 
   build-ios-unity:
     name: Run Unity iOS build
@@ -158,6 +163,11 @@ jobs:
     environment: ${{ github.event.inputs.environment }}
     if: ${{ github.event.inputs.enable_ios_build == 'true' }}
     steps:
+      - name: Starting job for ${{ github.event.inputs.environment }}
+        run: |
+          echo "enable_auto_assign_version_code: ${{ github.event.inputs.enable_auto_assign_version_code }}"
+          echo "define_symbols: ${{ github.event.inputs.define_symbols }}"
+
       - name: Check out
         uses: actions/checkout@v4
 
@@ -231,7 +241,7 @@ jobs:
           name: xcworkspace
           path: |
             XcodeProject
-          retention-days: 5
+          retention-days: 1
 
   build-ios-native:
     name: Run iOS Native build
@@ -311,4 +321,18 @@ jobs:
           path: |
             build/*.ipa
             build/*.dSYM.zip
-          retention-days: 5
+          retention-days: 3
+
+      - name: Delete Xcode project artifact
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ARTIFACT_NAME="xcworkspace"
+          ARTIFACT_ID=$(curl -s \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            https://api.github.com/repos/${{ github.repository }}/actions/artifacts | jq -r ".artifacts[] | select(.name==\"${ARTIFACT_NAME}\") | .id")
+          if [ -n "$ARTIFACT_ID" ]; then
+            curl -s -X DELETE \
+              -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              https://api.github.com/repos/${{ github.repository }}/actions/artifacts/$ARTIFACT_ID
+          fi
