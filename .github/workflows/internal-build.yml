@@ -85,10 +85,10 @@ jobs:
   build-android:
     name: Run Unity Android build
     runs-on: ubuntu-latest
-    environment: development
+    environment: ${{ inputs.environment }}
     if: ${{ github.event.inputs.enable_android_build == 'true' }}
     steps:
-      - name: Starting job for ${{ github.event.inputs.environment }}
+      - name: Starting job for ${{ inputs.environment }}
         run: |
           echo "enable_auto_assign_version_code: ${{ github.event.inputs.enable_auto_assign_version_code }}"
           echo "define_symbols: ${{ github.event.inputs.define_symbols }}"
@@ -192,10 +192,10 @@ jobs:
   build-ios-unity:
     name: Run Unity iOS build
     runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.environment }}
+    environment: ${{ inputs.environment }}
     if: ${{ github.event.inputs.enable_ios_build == 'true' }}
     steps:
-      - name: Starting job for ${{ github.event.inputs.environment }}
+      - name: Starting job for ${{ inputs.environment }}
         run: |
           echo "enable_auto_assign_version_code: ${{ github.event.inputs.enable_auto_assign_version_code }}"
           echo "define_symbols: ${{ github.event.inputs.define_symbols }}"
@@ -279,7 +279,7 @@ jobs:
     name: Run iOS Native build
     # https://github.com/actions/runner-images/blob/main/images/macos/macos-14-arm64-Readme.md
     needs: build-ios-unity
-    environment: ${{ github.event.inputs.environment }}
+    environment: ${{ inputs.environment }}
     if: ${{ github.event.inputs.enable_ios_build == 'true' }}
     runs-on: macos-14
     permissions:
