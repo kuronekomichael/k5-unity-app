@@ -1,0 +1,54 @@
+name: Build unity app for production
+
+on:
+  workflow_dispatch:
+    inputs:
+      define_symbols:
+        description: "Scripting Define Symbols"
+        required: false
+        default: "SYMBOL_A;SYMBOL_B;SYMBOL_C;"
+      enable_ios_build:
+        type: boolean
+        description: Build for iOS
+        required: false
+        default: true
+      enable_android_build:
+        type: boolean
+        description: Build for Android
+        required: false
+        default: true
+      enable_auto_assign_version_code:
+        type: boolean
+        description: Use github.run_number as version code
+        required: false
+        default: true
+
+jobs:
+  build-unity:
+    name: Build unity application
+    permissions:
+      contents: read
+      actions: write
+    uses: ./.github/workflows/internal-build.yml
+    with:
+      environment: production
+      define_symbols: ${{ github.event.inputs.define_symbols }}
+      enable_ios_build: ${{ github.event.inputs.enable_ios_build }}
+      enable_android_build: ${{ github.event.inputs.enable_android_build }}
+      enable_auto_assign_version_code: ${{ github.event.inputs.enable_auto_assign_version_code }}
+    secrets: inherit
+      # UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+      # UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+      # UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+      # ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      # ANDROID_KEYSTORE_PASS: ${{ secrets.ANDROID_KEYSTORE_PASS }}
+      # ANDROID_KEY_ALIAS_NAME: ${{ secrets.ANDROID_KEY_ALIAS_NAME }}
+      # ANDROID_KEY_ALIAS_PASS: ${{ secrets.ANDROID_KEY_ALIAS_PASS }}
+      # APPLE_DEVELOPER_TEAM_ID: ${{ secrets.APPLE_DEVELOPER_TEAM_ID }}
+      # APPLE_PROVISIONING_PROFILE_ID: ${{ secrets.APPLE_PROVISIONING_PROFILE_ID }}
+      # APPLE_PROVISIONING_PROFILE_BASE64: ${{ secrets.APPLE_PROVISIONING_PROFILE_BASE64 }}
+      # APPLE_BUILD_CERTIFICATE_P12_BASE64: ${{ secrets.APPLE_BUILD_CERTIFICATE_P12_BASE64 }}
+      # APPLE_P12_PASSWORD: ${{ secrets.APPLE_P12_PASSWORD }}
+      # APPLE_KEYCHAIN_PASSWORD: ${{ secrets.APPLE_KEYCHAIN_PASSWORD }}
+      # APPLE_EXPORT_OPTIONS_PLIST_BASE64: ${{ secrets.APPLE_EXPORT_OPTIONS_PLIST_BASE64 }}
+      # APPLE_CODE_SIGN_IDENTITY: ${{ secrets.APPLE_CODE_SIGN_IDENTITY }}
