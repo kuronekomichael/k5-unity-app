@@ -3,6 +3,7 @@ k5-unity-app
 
 [![development](https://github.com/kuronekomichael/k5-unity-app/actions/workflows/build.yml/badge.svg?event=workflow_dispatch&environment=development)](https://github.com/kuronekomichael/k5-unity-app/actions/workflows/build.yml)
 [![production](https://github.com/kuronekomichael/k5-unity-app/actions/workflows/build.yml/badge.svg?event=workflow_dispatch&environment=production)](https://github.com/kuronekomichael/k5-unity-app/actions/workflows/build.yml)
+
 Sample application for Unity/C#
 
 ## CLI Build
