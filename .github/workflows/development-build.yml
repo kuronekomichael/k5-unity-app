@@ -1,0 +1,36 @@
+name: Build unity app for development
+
+on:
+  workflow_dispatch:
+    inputs:
+      define_symbols:
+        description: "Scripting Define Symbols"
+        required: false
+        default: "SYMBOL_A;SYMBOL_B;SYMBOL_C;"
+      enable_ios_build:
+        type: boolean
+        description: Build for iOS
+        required: false
+        default: true
+      enable_android_build:
+        type: boolean
+        description: Build for Android
+        required: false
+        default: true
+      enable_auto_assign_version_code:
+        type: boolean
+        description: Use github.run_number as version code
+        required: false
+        default: true
+
+jobs:
+  build-unity:
+    name: Build unity application
+    uses: ./.github/workflows/internal-build.yml
+    with:
+        environment: development
+        define_symbols: ${{ github.event.inputs.define_symbols  }}
+        enable_ios_build: ${{ github.event.inputs.enable_ios_build  }}
+        enable_android_build: ${{ github.event.inputs.enable_android_build  }}
+        enable_auto_assign_version_code: ${{ github.event.inputs.enable_auto_assign_version_code  }}
+    secrets: inherit
