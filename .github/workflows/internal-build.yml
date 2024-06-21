@@ -85,7 +85,7 @@ jobs:
   build-android:
     name: Run Unity Android build
     runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.environment }}
+    environment: development
     if: ${{ github.event.inputs.enable_android_build == 'true' }}
     steps:
       - name: Starting job for ${{ github.event.inputs.environment }}
