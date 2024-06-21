@@ -1,8 +1,10 @@
 k5-unity-app
 ==============
 
-[![development](https://github.com/kuronekomichael/k5-unity-app/actions/workflows/build.yml/badge.svg?event=workflow_dispatch&environment=development)](https://github.com/kuronekomichael/k5-unity-app/actions/workflows/build.yml)
-[![production](https://github.com/kuronekomichael/k5-unity-app/actions/workflows/build.yml/badge.svg?event=workflow_dispatch&environment=production)](https://github.com/kuronekomichael/k5-unity-app/actions/workflows/build.yml)
+[![Build unity app for development](https://github.com/kuronekomichael/k5-unity-app/actions/workflows/development-build.yml/badge.svg)](https://github.com/kuronekomichael/k5-unity-app/actions/workflows/development-build.yml)
+[![Build unity app for production](https://github.com/kuronekomichael/k5-unity-app/actions/workflows/production-build.yml/badge.svg)](https://github.com/kuronekomichael/k5-unity-app/actions/workflows/production-build.yml)
+[![Android](https://github.com/kuronekomichael/k5-unity-app/actions/workflows/_android.yml/badge.svg)](https://github.com/kuronekomichael/k5-unity-app/actions/workflows/_android.yml)
+[![iOS](https://github.com/kuronekomichael/k5-unity-app/actions/workflows/_ios.yml/badge.svg)](https://github.com/kuronekomichael/k5-unity-app/actions/workflows/_ios.yml)
 
 Sample application for Unity/C#
 
@@ -22,6 +24,7 @@ KEYSTORE_FILEPATH="/path/to/dev.keystore"
 KEYSTORE_PASSWORD="xxxxxxx"
 KEYALIAS_NAME="yyyyyy"
 KEYALIAS_PASSWORD="zzzzzzz"
+
 
 /Applications/Unity/Hub/Editor/${UNITY_CLI_VERSION}/Unity.app/Contents/MacOS/Unity \
   -quit \
@@ -47,7 +50,6 @@ KEYALIAS_PASSWORD="zzzzzzz"
 
 cat ${PROJECT_PATH}/2_build_for_google.log | grep "Build result"
 cat ${PROJECT_PATH}/2_build_for_google.log | grep -v '> Task :' | grep -v '> Configure project :' | grep -E "^\s*> "
-
 ```
 
 ### iOS

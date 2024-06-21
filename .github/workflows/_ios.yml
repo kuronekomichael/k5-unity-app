@@ -1,4 +1,4 @@
-name: _ Build Unity iOS app
+name: iOS
 
 on:
   workflow_call:
