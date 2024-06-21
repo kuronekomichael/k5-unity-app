@@ -32,8 +32,8 @@ jobs:
     uses: ./.github/workflows/internal-build.yml
     with:
         environment: development
-        define_symbols: ${{ github.event.inputs.define_symbols  }}
-        enable_ios_build: ${{ github.event.inputs.enable_ios_build  }}
-        enable_android_build: ${{ github.event.inputs.enable_android_build  }}
-        enable_auto_assign_version_code: ${{ github.event.inputs.enable_auto_assign_version_code  }}
+        define_symbols: ${{ github.event.inputs.define_symbols }}
+        enable_ios_build: ${{ github.event.inputs.enable_ios_build }}
+        enable_android_build: ${{ github.event.inputs.enable_android_build }}
+        enable_auto_assign_version_code: ${{ github.event.inputs.enable_auto_assign_version_code }}
     secrets: inherit
