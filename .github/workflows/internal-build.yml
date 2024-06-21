@@ -22,10 +22,10 @@ on:
         required: false
         default: true
       enable_auto_assign_version_code:
-        type: boolean
+        type: string
         description: Use github.run_number as version code
         required: false
-        default: true
+        default: "true"
     secrets:
       UNITY_EMAIL:
         required: true
