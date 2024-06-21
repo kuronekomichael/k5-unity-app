@@ -26,6 +26,9 @@ on:
 jobs:
   build-unity:
     name: Build unity application
+    permissions:
+        contents: read
+        actions: write
     uses: ./.github/workflows/internal-build.yml
     with:
         environment: development
