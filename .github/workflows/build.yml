@@ -325,13 +325,16 @@ jobs:
 
       - name: Delete Xcode project artifact
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.DELETE_ARTIFACT_GITHUB_PAT }}
           RUN_ID: ${{ github.run_id }}
           ARTIFACT_NAME: xcworkspace
         run: |
           ARTIFACT_ID=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
             https://api.github.com/repos/${{ github.repository }}/actions/runs/${RUN_ID}/artifacts | jq -r ".artifacts[] | select(.name==\"${ARTIFACT_NAME}\") | .id")
           if [ -n "$ARTIFACT_ID" ]; then
+            echo "Delete artifact = https://api.github.com/repos/${{ github.repository }}/actions/artifacts/$ARTIFACT_ID"
             curl -s -X DELETE -H "Authorization: token $GITHUB_TOKEN" \
               https://api.github.com/repos/${{ github.repository }}/actions/artifacts/$ARTIFACT_ID
+          else
+            echo "No temporary artifact"
           fi
