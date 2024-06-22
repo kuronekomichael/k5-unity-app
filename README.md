@@ -3,8 +3,6 @@ k5-unity-app
 
 [![Build unity app for development](https://github.com/kuronekomichael/k5-unity-app/actions/workflows/development-build.yml/badge.svg)](https://github.com/kuronekomichael/k5-unity-app/actions/workflows/development-build.yml)
 [![Build unity app for production](https://github.com/kuronekomichael/k5-unity-app/actions/workflows/production-build.yml/badge.svg)](https://github.com/kuronekomichael/k5-unity-app/actions/workflows/production-build.yml)
-[![Android](https://github.com/kuronekomichael/k5-unity-app/actions/workflows/_android.yml/badge.svg)](https://github.com/kuronekomichael/k5-unity-app/actions/workflows/_android.yml)
-[![iOS](https://github.com/kuronekomichael/k5-unity-app/actions/workflows/_ios.yml/badge.svg)](https://github.com/kuronekomichael/k5-unity-app/actions/workflows/_ios.yml)
 
 Sample application for Unity/C#
 
